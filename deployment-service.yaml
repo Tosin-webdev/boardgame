@@ -14,14 +14,12 @@ spec:
     spec:
       containers:
         - name: boardgame
-          image: adijaiswal/boardgame:latest # Image that will be used to containers in the cluster
+          image: blackcypher01/boardgame:latest # Image that will be used to containers in the cluster
           imagePullPolicy: Always
           ports:
             - containerPort: 8080 # The port that the container is running on in the cluster
 
-
 ---
-
 apiVersion: v1 # Kubernetes API version
 kind: Service # Kubernetes resource kind we are creating
 metadata: # Metadata of the resource kind we are creating
