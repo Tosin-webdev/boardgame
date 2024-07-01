@@ -161,12 +161,69 @@ In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
 3. Move to the extracted directory
    cd prometheus-2.53.0.linus-amd-64
 4. Run prometheus
-   ./prometheus
+   ./prometheus &
 5. Verify prometheus is running
-   Open a web browser and navigate to http://localhost:9090
+   Open a web browser and navigate to http://your_server_ip::9090
 
 Install Node Exporter
 1. Download Node expoerter:
    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
 2. Extract the Tarball
-3. 
+   
+```
+tar -xzvf node_exporter-1.8.1.linux-amd64.tar.gz
+```
+3. move to the extracted directory
+```
+cd node_exporter-1.8.1.linux-amd64
+```
+4. Run Node Exporter
+  ./node_exporter
+5. Verify Node Exporter
+Open a web browser and navigate to http://your_server_ip:9100/metrics
+
+## Step 3 - Install Blackbox exporter
+1. Download blackbox exporter
+   wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+
+2. Extract the tarball
+tar -xzvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+
+3. Move to the Extracted Directory
+   cd blackbox_exporter-0.25.0.linux-amd64
+4. Run Blackbox exporter
+   ./blackbox_exporter &
+5. Verify Blackbox Exporter is running
+   Open a web browser and navigate to http://localhost:9115/metrics.
+
+
+## Step 4 - Install and Setup grafana
+
+1. Install Dependencies
+   * Update Package list
+   * sudo apt-get update
+2. Download nd Install grafana
+   * Download the grafana engterprise package
+     wget https://dl.grafana.com/enterprise/release/grafana-
+enterprise_11.0.0_amd64.deb
+   * Install grafan using dpkg
+     sudo dpkg -i grafana-enterprise_11.0.0_amd64.deb
+    
+3. Start and Enable Grafana
+   * Start the Grafana service:
+   sudo system start grafan-server
+   * Enable the Grafana service to start on boot:
+      sudo systemctl enable grafana-server
+     
+4. Access grafana
+   * Open web browser and navaigate to http://your_server_ip:3000
+   * Log into grafana
+       * The default username is admin
+       * The default password is admin
+   * Change the default password
+     Upon first login, you will be prompted to change the default password. Enter
+a new password and confirm it.
+
+5. Configure grafana
+
+   * 
