@@ -1,6 +1,6 @@
 # Phase 1 | Infra Setup
 
-Step 1: Launch EC2 instance
+## Step 1: Launch EC2 instance
 In this Project we will be Creating 7 EC2 instances. One to run kubernetes master node, two slave nodes. One to run jenkins pipeline for our CI/CD one for nexus repository, sonarqube and for monitoring 
 
 1. Sign in to the AWS management console:
