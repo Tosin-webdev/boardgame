@@ -226,4 +226,25 @@ a new password and confirm it.
 
 5. Configure grafana
 
-   * 
+ * Add a data Source
+   * Navigate to configurations > Data sources
+   * Click Add data source
+   * Choose your desires data source type (prometheus)
+   * Configure the data source with the appropriate URL (e.g Your server URL)
+   * CLick save &test
+
+ * Create a dashboard
+   * Navigate to create > dashboard.
+   * Add panels and configure quesroies to visualize metrics
+   * save the dashboard
+  
+ ## Step 5 - Import a dashboard
+ To make it easier to view metrics, you can import a pre configured dashboard. FOllow these steps:
+   * Clik on the + plus icon in the left sidebar to open the "create" menu
+   * Select "Dashboard"
+   * Click on the "Import" dashboard option
+   * Enter the code you want to import (e.g code 1860))
+   * click the "load" button
+   * Select the data source you added (prometheus) from the dropdown
+   * Click on the import button
+You should now have grafana dashnoard set up to visualize metrics from prometheus.
