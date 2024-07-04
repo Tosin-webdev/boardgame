@@ -150,6 +150,244 @@ Add credentials
 
 ## Jenkins pipeline script
 
+```
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'jdk17'
+        maven 'maven3'
+    }
+    environment {
+        SCANNER_HOME = tool 'sonar-scanner'
+    }
+
+    stages {
+        stage('Git checkout') {
+            steps {
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/Tosin-webdev/boardgame'
+            }
+        }
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+        stage('File System Scan') {
+            steps {
+                sh 'trivy fs --format table -o trivy-fs-report.html .'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=BoardGame -Dsonar.projectKey=BoardGame \
+                            -Dsonar.java.binaries=.'''
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+        stage('Publish to Nexus') {
+            steps {
+                withMaven(globalMavenSettingsConfig: 'global-settings', jdk: 'jdk17', maven: 'maven3', mavenSettingsConfig: '', traceability: true) {
+                    sh 'mvn deploy'
+                }          
+            }
+        }
+
+        stage('Build and Tag Docker Image') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                    sh 'docker build -t blackcypher01/boardgame:latest .'
+                }
+            }
+        }
+        stage('Docker Image Scan') {
+            steps {
+               sh 'trivy image --format table -o trivy-image-report.html blackcypher01/boardgame:latest'
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                    sh 'docker push blackcypher01/boardgame:latest'
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.59.153:6443') {
+                    sh 'kubectl apply -f deployment-service.yaml'
+                }
+            }
+        }
+        stage('Verify the Deployment') {
+            steps {
+                withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.59.153:6443') {
+                    sh 'kubectl get pods -n webapps'
+                    sh 'kubectl get svc -n webapps'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
+                def bannerColor = pipelineStatus.toUpperCase() == 'SUCCESS' ? 'green' : 'red'
+                def body = """
+                <html>
+                <body>
+                <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                <h2>${jobName} - Build ${buildNumber}</h2>
+                <div style="background-color: ${bannerColor}; padding: 10px;">
+                <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                </div>
+                <p>Check the <a href="${BUILD_URL}">console output</a>.</p>
+                </div>
+                </body>
+                </html>
+                """
+                
+                emailext (
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'oladejit3@gmail.com',
+                    from: 'jenkins@example.com',
+                    replyTo: 'jenkins@example.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: 'trivy-image-report.html'
+                )
+            }
+        }
+    }
+}
+
+```
+## Kubernetes Setup
+Create service account
+```
+vi svc.yaml
+```
+paste the command below into the file
+```
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: webapps
+
+```
+```
+kubectl create ns webapps
+```
+```
+kubectl apply -f svc.yaml
+```
+```
+vi role.yaml
+
+```
+paste the command below into the file
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: app-role
+  namespace: webapps
+rules:
+- apiGroups:
+  - ""  # Core API group
+  - apps
+  - autoscaling
+  - batch
+  - extensions
+  - policy
+  - rbac.authorization.k8s.io
+  resources:
+  - pods
+  - componentstatuses
+  - configmaps
+  - daemonsets
+  - deployments
+  - events
+  - endpoints
+  - horizontalpodautoscalers
+  - ingress
+  - jobs
+  - limitranges
+  - namespaces
+  - nodes
+  - pods  # Duplicate entry, remove if not necessary
+  - persistentvolumes
+  - persistentvolumeclaims
+  - resourcequotas
+  - replicasets
+  - replicationcontrollers
+  - serviceaccounts
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+```
+Bind role to service account
+```
+vi bind.yaml
+```
+paste the content below into the file
+
+```
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-rolebinding
+  namespace: webapps
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: app-role
+subjects:
+- namespace: webapps
+  kind: ServiceAccount
+  name: jenkins
+
+```
+save and run the command
+kubectl appply -f bind.yaml
+
+Now the user we created have permision to perform deployment.
+
+## create token for authentication
+
+```
+vi sec.yaml
+```
+
+```
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: mysecretname
+  annotations:
+    kubernetes.io/service-account.name: jenkins
+```
+kubectl apply -f sec.yaml -n webapps
+
+provide name of namespace
 Phase 4 | Monitoring
 
 In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
