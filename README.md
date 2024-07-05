@@ -110,6 +110,30 @@ sudo apt-get update
 5. Install Trivy
 sudo apt-get install -y trivy
 
+## Install KUBECTL On Jenkins Server
+
+
+```
+vi k.sh
+```
+paste the command below into the file
+
+```
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
+```
+change file permission to be executable 
+```
+sudo chmod +x k.sh
+```
+run and install
+```
+./k.sh
+```
+
+
 ## Step 6 - Setting Up Nexus Repository Manager Using Docker
 ### Step-by-Step Installation
 1. Pull the nexus Docker image
@@ -341,8 +365,14 @@ rules:
   - update
   - patch
   - delete
-
 ```
+```
+kubectl apply -f role.yaml
+```
+```
+kubectl apply -f bind.yaml
+```
+
 Bind role to service account
 ```
 vi bind.yaml
@@ -375,7 +405,7 @@ Now the user we created have permision to perform deployment.
 ```
 vi sec.yaml
 ```
-
+paste the command below into the file
 ```
 apiVersion: v1
 kind: Secret
@@ -385,7 +415,13 @@ metadata:
   annotations:
     kubernetes.io/service-account.name: jenkins
 ```
+
+provide name of namespace
 kubectl apply -f sec.yaml -n webapps
+
+
+kubectl apply -f svc.yaml
+
 
 provide name of namespace
 Phase 4 | Monitoring
@@ -393,19 +429,29 @@ Phase 4 | Monitoring
 In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
 ## sterp 1.
 1. Install prometheus
-   wget https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
+```
+wget https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
+```
 2. Extract prometheus
-   tar -xzvf prometheus-2.52.0.linux-amd64.tar.gz
+```
+tar -xzvf prometheus-2.52.0.linux-amd64.tar.gz
+```
 3. Move to the extracted directory
-   cd prometheus-2.53.0.linus-amd-64
+```
+cd prometheus-2.53.0.linus-amd-64
+```
 4. Run prometheus
-   ./prometheus &
+```
+./prometheus &
+```
 5. Verify prometheus is running
-   Open a web browser and navigate to http://your_server_ip::9090
+   Open a web browser and navigate to `http://your_server_ip::9090`
 
 Install Node Exporter
 1. Download Node expoerter:
+```
    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+```
 2. Extract the Tarball
    
 ```
@@ -416,7 +462,9 @@ tar -xzvf node_exporter-1.8.1.linux-amd64.tar.gz
 cd node_exporter-1.8.1.linux-amd64
 ```
 4. Run Node Exporter
+```
   ./node_exporter
+```
 5. Verify Node Exporter
 Open a web browser and navigate to http://your_server_ip:9100/metrics
 
@@ -442,11 +490,15 @@ tar -xzvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
    * sudo apt-get update
 2. Download nd Install grafana
    * Download the grafana engterprise package
-     wget https://dl.grafana.com/enterprise/release/grafana-
+```
+wget https://dl.grafana.com/enterprise/release/grafana-
 enterprise_11.0.0_amd64.deb
-   * Install grafan using dpkg
-     sudo dpkg -i grafana-enterprise_11.0.0_amd64.deb
-    
+```
+   * Install grafana using dpkg
+```
+sudo dpkg -i grafana-enterprise_11.0.0_amd64.deb
+```
+ 
 3. Start and Enable Grafana
    * Start the Grafana service:
    sudo system start grafan-server
@@ -486,3 +538,9 @@ a new password and confirm it.
    * Select the data source you added (prometheus) from the dropdown
    * Click on the import button
 You should now have grafana dashnoard set up to visualize metrics from prometheus.
+![Screenshot from 2024-06-29 12-36-41](https://github.com/Tosin-webdev/boardgame/assets/64624808/c6c06967-de11-4e00-a249-361f41731243)
+
+
+
+![Screenshot from 2024-06-29 20-44-49](https://github.com/Tosin-webdev/boardgame/assets/64624808/19bf3b30-458b-4e53-ad14-3c3a44e96501)
+
