@@ -1,9 +1,12 @@
 # Project Description: Automated Kubernetes Deployment with Jenkins
 
-This project involves the integration of Jenkins, Kubernetes, Docker, Nexus Repository, SonarQube, Prometheus, and Grafana to create a robust CI/CD pipeline for automated application deployment and monitoring. The primary objectives are to automate the build, test, and deployment processes, ensure code quality and security, and provide real-time monitoring of the deployed applications.
+This project involves the integration of Jenkins, Kubernetes, Docker, Nexus Repository, SonarQube, Prometheus, and Grafana to create a robust CI/CD pipeline for automated application deployment and monitoring. The primary objectives are to automate the build, test, and deployment processes, ensure code quality and security, and provide real-time monitoring of the deployed applications. The project focuses on a full-stack application developed in Java, ensuring comprehensive coverage from backend to frontend in the deployment pipeline.
+
+![Screenshot from 2024-06-29 04-25-45](https://github.com/Tosin-webdev/boardgame/assets/64624808/a69f50a0-547a-4a49-8791-3a3548cd5a22)
 
 
-### Phase 1 | Infra Setup
+
+## Phase 1 | Infra Setup
 
 ### Step 1: Launch EC2 instance
 In this Project we will be Creating 7 EC2 instances. One to run kubernetes master node, two slave nodes. One to run jenkins pipeline for our CI/CD one for nexus repository, sonarqube and for monitoring (Prometheus & grafana)
@@ -161,7 +164,7 @@ run and install
 ```
 
 
-## Step 6 - Setting Up Nexus Repository Manager Using Docker
+### Step 6 - Setting Up Nexus Repository Manager Using Docker
 
 ### Step-by-Step Installation
 1. Pull the nexus Docker image
@@ -550,6 +553,12 @@ spec:
 
 ![Screenshot from 2024-06-29 04-22-22](https://github.com/Tosin-webdev/boardgame/assets/64624808/805a25e4-e056-4a26-99d7-343c41b940e6)
 
+Access your appliation using slave 1 ip and your kubernetes cluster port 
+
+![Screenshot from 2024-06-29 04-32-26](https://github.com/Tosin-webdev/boardgame/assets/64624808/10d1e1a7-90e4-41d0-9b4d-fd4833e8a125)
+
+![Screenshot from 2024-06-29 04-32-40](https://github.com/Tosin-webdev/boardgame/assets/64624808/7d414f44-a503-4d35-b2dd-30aa7a3907fe)
+
 
 ## Phase 4 | Monitoring
 
@@ -677,6 +686,7 @@ You should now have grafana dashnoard set up to visualize metrics from prometheu
 ![Screenshot from 2024-06-29 12-36-41](https://github.com/Tosin-webdev/boardgame/assets/64624808/c6c06967-de11-4e00-a249-361f41731243)
 
 
+![Screenshot from 2024-06-29 12-31-19](https://github.com/Tosin-webdev/boardgame/assets/64624808/34ad6bae-9fbd-4512-9c3c-91516953bb58)
 
-![Screenshot from 2024-06-29 20-44-49](https://github.com/Tosin-webdev/boardgame/assets/64624808/19bf3b30-458b-4e53-ad14-3c3a44e96501)
+![Screenshot from 2024-06-29 12-01-00](https://github.com/Tosin-webdev/boardgame/assets/64624808/31b19db3-0456-41f6-bb04-cfde01977b65)
 
