@@ -46,11 +46,9 @@ In this Project we will be Creating 7 EC2 instances. One to run kubernetes maste
 10.  Access the instance
    Connect to the instance using SSH.
 
-### Step 2: CLone the Code
 
-git clone `[https:...](https://github.com/Tosin-webdev/boardgame.git)`
 
-### Step 3 Install Docker 
+### Step 2 Install Docker 
 Set up Docker on the EC2 instance:
 1. Install prerequsite packages:
 ```
@@ -78,7 +76,7 @@ sudo apt-get update
 ```
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin.
 ```
-### step 4: Setting Up jenkins on ubuntu
+### step 3: Setting Up jenkins on ubuntu
 
 1. Update the system
 ```
@@ -117,7 +115,7 @@ sudo systemctl enable jenkins
 8. Access Jenkins:
 Open a web browser and go to `http://your_server_ip:8080`.
 
-### Step 5 Installing Trivy on Jenkins server
+### Step 4 Installing Trivy on Jenkins server
 
 1. Install prerequisite packages:
 ```
@@ -164,7 +162,7 @@ run and install
 ```
 
 
-### Step 6 - Setting Up Nexus Repository Manager Using Docker
+### Step 5 - Setting Up Nexus Repository Manager Using Docker
 
 ### Step-by-Step Installation
 1. Pull the nexus Docker image
@@ -173,10 +171,42 @@ run and install
    sudo docker run -d  --name Nexus -p 8081:8081 sonatype/nexus3
 3. Access Nexus
 
-## Step 7 - Setting Up Nexus Repository Manager Using Docker
+## Step 6 - Setting Up Nexus Repository Manager Using Docker
 1. Run PostgreSQL container
 2. docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
 
+### Step 2: Source code setup 
+
+1. Create repository on github
+   
+2. clone soource code
+
+```
+git clone https://github.com/Tosin-webdev/boardgame.git
+```
+3. Initialize git repository
+```
+git init
+```
+4. Add remote repository
+git remote add origin https://github.com/Tosin-webdev/boardgame.git
+
+5. Navigate to the directory containing source code
+```
+cd boardgame
+```
+6. Add files to git
+```
+git add .
+```
+7. commit files:
+```
+git commit -m "Initial commit"
+```
+8. Push to Github
+```
+git push -u origin master
+```
 ## Phase 3 CICD Pipeline
 
 Step 1 - Install neccessary plugins in jenkins 
@@ -195,13 +225,38 @@ Install Below plugins
 11. kubernetes client API
 12. kubernetes CLI
 
-   Configure the installed plugins
+## step 2 - Configure the installed plugins
 Goto Manage Jenkins → Tools → Install JDK(17), maven(3), docker,SonarQube Scanner → Click on Apply and Save
 
-Add credentials
+1. Navigate to Manage Jenkins.
 
-1. Add docker hub credentials
-   Go to "dashboard" --> "
+2. Select Global Tool Configuration.
+
+3. Install the following tools:
+
+  * JDK (17)
+  * Maven (3)
+  * Docker
+  * SonarQube Scanner
+Click Apply and Save to save the configurations.
+
+### Step 3 - Add credentials
+
+1. Navigate to the Jenkins Dashboard.
+2. Select Manage Jenkins.
+3. Choose Manage Credentials.
+4. Add Docker Hub credentials:
+  * Click on (global) under Stores scoped to Jenkins.
+  * Click on Add Credentials.
+  * Choose Username with password as the kind.
+  * Fill in the Username and Password with your Docker Hub credentials.
+  * Provide an ID and Description.
+Click OK to save the credential
+
+Add credentials for git, sonar and kubernetes.
+
+![Screenshot from 2024-06-29 04-22-22](https://github.com/Tosin-webdev/boardgame/assets/64624808/b1ccaa5d-cc70-4dcc-82aa-4a69b3085714)
+
 
 ### Jenkins pipeline script
 
