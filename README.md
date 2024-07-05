@@ -1,6 +1,6 @@
-# Phase 1 | Infra Setup
+## Phase 1 | Infra Setup
 
-## Step 1: Launch EC2 instance
+### Step 1: Launch EC2 instance
 In this Project we will be Creating 7 EC2 instances. One to run kubernetes master node, two slave nodes. One to run jenkins pipeline for our CI/CD one for nexus repository, sonarqube and for monitoring 
 
 1. Sign in to the AWS management console:
@@ -38,75 +38,96 @@ In this Project we will be Creating 7 EC2 instances. One to run kubernetes maste
 10.  Access the instance
    Connect to the instance using SSH.
 
-Step 2: CLone the Code
+### Step 2: CLone the Code
 
 git clone https:...
 
-step 3 Install Docker 
+### Step 3 Install Docker 
 Set up Docker on the EC2 instance:
 1. Install prerequsite packages:
+```
 sudo apt-get update
 sudo apt-get install ca-certificates curl
-
+```
 2. Download and add Docker's official GPG key:
+```
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
-
+```
 3. Add the repository to Apt sources:
+```
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
+```
 4. Update package index
+```
 sudo apt-get update
-
+```
 5. Install docker packages
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin.
 
 ### step 4: Setting Up jenkins on ubuntu
 
 1. Update the system
-   sudo apt-get update
-   sudo apt-get upgrade -y
+```
+sudo apt-get update
+sudo apt-get upgrade -y
+```
 2. Install java (Jenkins requires Java)
-   sudo apt install openjdk-17-jre-headless
+```
+sudo apt install openjdk-17-jre-headless
+```
 
 3. Add jenkins repository key
+```
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+```
 4. Add Jenkins repository
- echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+```
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
-
+```
 5. Update the package index.
-   sudo apt-get update
+```
+sudo apt-get update
+```
 6. Install jenkins
-    sudo apt-get install jenkins -y
+```
+sudo apt-get install jenkins -y
+```
 7. Start and enable Jenkins
-    sudo systemctl start jenkins
-    sudo systemctl enable jenkins
+```
+sudo systemctl start jenkins
+sudo systemctl enable jenkins
+```
 8. Access Jenkins:
-   Open a web browser and go to http://your_server_ip:8080.
+Open a web browser and go to `http://your_server_ip:8080`.
 
 ### Step 5 Installing Trivy on Jenkins server
 
 1. Install prerequisite packages:
-    sudo apt-get update
-    sudo apt-get install -y wget apt-transport-https gnupg lsb-release
-
+```
+sudo apt-get update
+sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+```
 2.  Add Trivy GPG key
+```
 wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-
+```
 3. Add Trivy repository to APT sources
+```
 echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
     | sudo tee /etc/apt/sources.list.d/trivy.list > /dev/null
-   
+```  
 4. Update APT package index
+```
 sudo apt-get update
-
+```
 5. Install Trivy
 sudo apt-get install -y trivy
 
@@ -510,13 +531,17 @@ spec:
     * Go to the Jenkins Dashboard.
     * Select the pipeline job you created.
     * Click Build Now.
+  
+  
+![Screenshot from 2024-06-29 20-44-49](https://github.com/Tosin-webdev/boardgame/assets/64624808/977e0303-eddb-4f13-8f4f-6defcc6b45c5)
 
+![Screenshot from 2024-06-29 04-22-22](https://github.com/Tosin-webdev/boardgame/assets/64624808/805a25e4-e056-4a26-99d7-343c41b940e6)
 
 
 Phase 4 | Monitoring
 
 In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
-## sterp 1.
+## Step 1.
 1. Install prometheus
 ```
 wget https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
@@ -559,18 +584,27 @@ Open a web browser and navigate to http://your_server_ip:9100/metrics
 
 ## Step 3 - Install Blackbox exporter
 1. Download blackbox exporter
-   wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+```
+wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+```
 
 2. Extract the tarball
+```
 tar -xzvf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+```
 
 3. Move to the Extracted Directory
-   cd blackbox_exporter-0.25.0.linux-amd64
+```
+cd blackbox_exporter-0.25.0.linux-amd64
+```
 4. Run Blackbox exporter
-   ./blackbox_exporter &
+```
+./blackbox_exporter &
+```
 5. Verify Blackbox Exporter is running
-   Open a web browser and navigate to http://localhost:9115/metrics.
-
+```
+Open a web browser and navigate to http://localhost:9115/metrics.
+```
 
 ## Step 4 - Install and Setup grafana
 
