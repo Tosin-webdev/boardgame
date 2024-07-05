@@ -1,3 +1,8 @@
+# Project Description: Automated Kubernetes Deployment with Jenkins
+
+This project involves the integration of Jenkins, Kubernetes, Docker, Nexus Repository, SonarQube, Prometheus, and Grafana to create a robust CI/CD pipeline for automated application deployment and monitoring. The primary objectives are to automate the build, test, and deployment processes, ensure code quality and security, and provide real-time monitoring of the deployed applications.
+
+
 ## Phase 1 | Infra Setup
 
 ### Step 1: Launch EC2 instance
