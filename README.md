@@ -112,7 +112,6 @@ sudo apt-get install -y trivy
 
 ## Install KUBECTL On Jenkins Server
 
-
 ```
 vi k.sh
 ```
@@ -296,30 +295,41 @@ pipeline {
 
 ```
 ## Kubernetes Setup
-Create service account
+### step 1 - Create a service account
+
+1. Create a service account YAML file
+Open your text editor to create a new file named svc.yaml:
+
 ```
 vi svc.yaml
 ```
-paste the command below into the file
+2. paste the following configuration into the file
 ```
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
   namespace: webapps
-
 ```
+
+3. Create a namespace and apply the service account
 ```
 kubectl create ns webapps
 ```
 ```
 kubectl apply -f svc.yaml
 ```
-```
-vi role.yaml
+
+## Step 2 - Create a role
+
+1. Create a role YAML file:
+Open your text editor to create a new file named `role.yaml`:
 
 ```
-paste the command below into the file
+vi role.yaml
+```
+2. paste the following configuration into the file
+
 ```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -366,18 +376,26 @@ rules:
   - patch
   - delete
 ```
+3. Apply the role configuration
+
 ```
 kubectl apply -f role.yaml
 ```
+
+## Step 3 - Bind the role to the service account
+
+1. Create a role binding YAML file
+
+Open your text editor to create a new file named bind.yaml:
+
 ```
 kubectl apply -f bind.yaml
 ```
 
-Bind role to service account
 ```
 vi bind.yaml
 ```
-paste the content below into the file
+2. Paste the following configuration into the file:
 
 ```
 apiVersion: rbac.authorization.k8s.io/v1
@@ -393,19 +411,25 @@ subjects:
 - namespace: webapps
   kind: ServiceAccount
   name: jenkins
-
 ```
 save and run the command
-kubectl appply -f bind.yaml
 
+3. apply the role binding configuration
+```
+kubectl appply -f bind.yaml
+```
 Now the user we created have permision to perform deployment.
 
 ## create token for authentication
 
+1. Create a secret YAML file
+open your text editor to create a new file name `sec.yaml`
+
 ```
 vi sec.yaml
 ```
-paste the command below into the file
+
+2. Paste the following configuration into the file:
 ```
 apiVersion: v1
 kind: Secret
@@ -416,14 +440,79 @@ metadata:
     kubernetes.io/service-account.name: jenkins
 ```
 
-provide name of namespace
+3. Apply the secret configuration:
+
+Provide the name of the namespace and apply:
+
+```
 kubectl apply -f sec.yaml -n webapps
+```
+
+4. Get the token for jenkins kubernetes authentication
+
+```
+kubectl describe secret mysecretname -n webapps
+```
+
+Copy the token from the output and use it for Jenkins Kubernetes authentication.
+
+## Step 5 - Create deploymentyaml file
+
+1. Create a deployment YAML File
+
+  open your text editor to create a new file named `deployment.yaml:`
+
+```
+vi deployment.yaml
+```
+  
+2. Paste the following configuration into the file
+apiVersion: apps/v1
+kind: Deployment # Kubernetes resource kind we are creating
+metadata:
+  name: boardgame-deployment
+spec: 
+  selector:
+    matchLabels:
+      app: boardgame
+  replicas: 2 # Number of replicas that will be created for this deployment
+  template:
+    metadata:
+      labels:
+        app: boardgame
+    spec:
+      containers:
+        - name: boardgame
+          image: adijaiswal/boardgame:latest # Image that will be used to containers in the cluster
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080 # The port that the container is running on in the cluster
 
 
-kubectl apply -f svc.yaml
+---
+
+apiVersion: v1 # Kubernetes API version
+kind: Service # Kubernetes resource kind we are creating
+metadata: # Metadata of the resource kind we are creating
+  name: boardgame-ssvc
+spec:
+  selector:
+    app: boardgame
+  ports:
+    - protocol: "TCP"
+      port: 8080 # The port that the service is running on in the cluster
+      targetPort: 8080 # The port exposed by the service
+  type: LoadBalancer # type of the service.
+
+## Step 6: Trigger the Pipeline
+1. Trigger the pipeline:
+
+    * Go to the Jenkins Dashboard.
+    * Select the pipeline job you created.
+    * Click Build Now.
 
 
-provide name of namespace
+
 Phase 4 | Monitoring
 
 In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
