@@ -189,8 +189,9 @@ git clone https://github.com/Tosin-webdev/boardgame.git
 git init
 ```
 4. Add remote repository
+```
 git remote add origin https://github.com/Tosin-webdev/boardgame.git
-
+```
 5. Navigate to the directory containing source code
 ```
 cd boardgame
