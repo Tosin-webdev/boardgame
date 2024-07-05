@@ -3,7 +3,7 @@
 This project involves the integration of Jenkins, Kubernetes, Docker, Nexus Repository, SonarQube, Prometheus, and Grafana to create a robust CI/CD pipeline for automated application deployment and monitoring. The primary objectives are to automate the build, test, and deployment processes, ensure code quality and security, and provide real-time monitoring of the deployed applications.
 
 
-## Phase 1 | Infra Setup
+### Phase 1 | Infra Setup
 
 ### Step 1: Launch EC2 instance
 In this Project we will be Creating 7 EC2 instances. One to run kubernetes master node, two slave nodes. One to run jenkins pipeline for our CI/CD one for nexus repository, sonarqube and for monitoring (Prometheus & grafana)
@@ -45,7 +45,7 @@ In this Project we will be Creating 7 EC2 instances. One to run kubernetes maste
 
 ### Step 2: CLone the Code
 
-git clone https:...
+git clone `[https:...](https://github.com/Tosin-webdev/boardgame.git)`
 
 ### Step 3 Install Docker 
 Set up Docker on the EC2 instance:
@@ -72,8 +72,9 @@ echo \
 sudo apt-get update
 ```
 5. Install docker packages
+```
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin.
-
+```
 ### step 4: Setting Up jenkins on ubuntu
 
 1. Update the system
@@ -134,8 +135,9 @@ echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main"
 sudo apt-get update
 ```
 5. Install Trivy
+```
 sudo apt-get install -y trivy
-
+```
 ## Install KUBECTL On Jenkins Server
 
 ```
@@ -160,6 +162,7 @@ run and install
 
 
 ## Step 6 - Setting Up Nexus Repository Manager Using Docker
+
 ### Step-by-Step Installation
 1. Pull the nexus Docker image
    sudo docker pull sonatype/nexus3
@@ -197,7 +200,7 @@ Add credentials
 1. Add docker hub credentials
    Go to "dashboard" --> "
 
-## Jenkins pipeline script
+### Jenkins pipeline script
 
 ```
 pipeline {
@@ -207,6 +210,7 @@ pipeline {
         jdk 'jdk17'
         maven 'maven3'
     }
+// Define environment variables
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
     }
@@ -214,6 +218,7 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
+                // Checkout code from git
                 git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/Tosin-webdev/boardgame'
             }
         }
@@ -229,6 +234,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
+              // Run SonarQube analysis to check code quality
                 withSonarQubeEnv('sonar') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=BoardGame -Dsonar.projectKey=BoardGame \
                             -Dsonar.java.binaries=.'''
@@ -237,6 +243,7 @@ pipeline {
         }
 
         stage('Build') {
+            // Use Maven to build the project
             steps {
                 sh 'mvn package'
             }
@@ -252,6 +259,7 @@ pipeline {
         stage('Build and Tag Docker Image') {
             steps {
                 withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                // Build a Docker image from the Dockerfile
                     sh 'docker build -t blackcypher01/boardgame:latest .'
                 }
             }
@@ -264,6 +272,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                    // Push the Docker image to Docker Hub
                     sh 'docker push blackcypher01/boardgame:latest'
                 }
             }
@@ -271,6 +280,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withKubeConfig(caCertificate: '', clusterName: 'kubernetes', contextName: '', credentialsId: 'k8-cred', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://172.31.59.153:6443') {
+                    // Apply Kubernetes configurations to deploy the application
                     sh 'kubectl apply -f deployment-service.yaml'
                 }
             }
@@ -320,7 +330,7 @@ pipeline {
 }
 
 ```
-## Kubernetes Setup
+### Kubernetes Setup
 ### step 1 - Create a service account
 
 1. Create a service account YAML file
@@ -415,10 +425,6 @@ kubectl apply -f role.yaml
 Open your text editor to create a new file named bind.yaml:
 
 ```
-kubectl apply -f bind.yaml
-```
-
-```
 vi bind.yaml
 ```
 2. Paste the following configuration into the file:
@@ -446,7 +452,7 @@ kubectl appply -f bind.yaml
 ```
 Now the user we created have permision to perform deployment.
 
-## create token for authentication
+### create token for authentication
 
 1. Create a secret YAML file
 open your text editor to create a new file name `sec.yaml`
@@ -482,17 +488,18 @@ kubectl describe secret mysecretname -n webapps
 
 Copy the token from the output and use it for Jenkins Kubernetes authentication.
 
-## Step 5 - Create deploymentyaml file
+### Step 5 - Create deployment YAML file
 
 1. Create a deployment YAML File
 
-  open your text editor to create a new file named `deployment.yaml:`
+  open your text editor to create a new file named `deployment-service.yaml`
 
 ```
 vi deployment.yaml
 ```
   
 2. Paste the following configuration into the file
+```
 apiVersion: apps/v1
 kind: Deployment # Kubernetes resource kind we are creating
 metadata:
@@ -529,8 +536,9 @@ spec:
       port: 8080 # The port that the service is running on in the cluster
       targetPort: 8080 # The port exposed by the service
   type: LoadBalancer # type of the service.
+```
 
-## Step 6: Trigger the Pipeline
+### Step 6: Trigger the Pipeline
 1. Trigger the pipeline:
 
     * Go to the Jenkins Dashboard.
@@ -543,10 +551,10 @@ spec:
 ![Screenshot from 2024-06-29 04-22-22](https://github.com/Tosin-webdev/boardgame/assets/64624808/805a25e4-e056-4a26-99d7-343c41b940e6)
 
 
-Phase 4 | Monitoring
+## Phase 4 | Monitoring
 
-In this set you will set up prometheus, grafana, node-exporte, blackbox-exporter
-## Step 1.
+In this set you will set up prometheus, grafana, node-exporter, blackbox-exporter
+### Step 1.
 1. Install prometheus
 ```
 wget https://github.com/prometheus/prometheus/releases/download/v2.53.0/prometheus-2.53.0.linux-amd64.tar.gz
@@ -566,8 +574,8 @@ cd prometheus-2.53.0.linus-amd-64
 5. Verify prometheus is running
    Open a web browser and navigate to `http://your_server_ip::9090`
 
-Install Node Exporter
-1. Download Node expoerter:
+### Step 2 -Install Node Exporter
+1. Download Node exporter:
 ```
    wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
 ```
@@ -587,7 +595,7 @@ cd node_exporter-1.8.1.linux-amd64
 5. Verify Node Exporter
 Open a web browser and navigate to http://your_server_ip:9100/metrics
 
-## Step 3 - Install Blackbox exporter
+### Step 3 - Install Blackbox exporter
 1. Download blackbox exporter
 ```
 wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
@@ -611,7 +619,7 @@ cd blackbox_exporter-0.25.0.linux-amd64
 Open a web browser and navigate to http://localhost:9115/metrics.
 ```
 
-## Step 4 - Install and Setup grafana
+### Step 4 - Install and Setup grafana
 
 1. Install Dependencies
    * Update Package list
@@ -656,7 +664,7 @@ a new password and confirm it.
    * Add panels and configure quesroies to visualize metrics
    * save the dashboard
   
- ## Step 5 - Import a dashboard
+ ### Step 5 - Import a dashboard
  To make it easier to view metrics, you can import a pre configured dashboard. FOllow these steps:
    * Clik on the + plus icon in the left sidebar to open the "create" menu
    * Select "Dashboard"
