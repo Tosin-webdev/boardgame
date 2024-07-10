@@ -166,16 +166,21 @@ run and install
 
 ### Step-by-Step Installation
 1. Pull the nexus Docker image
+```
    sudo docker pull sonatype/nexus3
+```
 2. Run the Nexus container
+```
    sudo docker run -d  --name Nexus -p 8081:8081 sonatype/nexus3
+```
 3. Access Nexus
 
-## Step 6 - Setting Up Nexus Repository Manager Using Docker
+### Step 6 - Setting Up Sonarqube Using Docker
 1. Run PostgreSQL container
-2. docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
-
-### Step 2: Source code setup 
+```
+docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
+```
+### Phase 2 | Source code setup 
 
 1. Create repository on github
    
@@ -208,7 +213,7 @@ git commit -m "Initial commit"
 ```
 git push -u origin master
 ```
-## Phase 3 CICD Pipeline
+## Phase 3 | CICD Pipeline
 
 Step 1 - Install neccessary plugins in jenkins 
 Go to manage Jenkins --> Plugins --> Avaliable plugins -->
